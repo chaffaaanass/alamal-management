@@ -1,0 +1,16 @@
+nav {
+    background-color: #007bff
+}
+nav ul {
+    display: flex;
+    list-style-type: none;
+    gap: 40px;
+    justify-content: center;
+    padding: 20px;
+}
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+}

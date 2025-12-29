@@ -1,0 +1,132 @@
+<div class="engineer-container">
+  <div class="header">
+    <h1>Gestion des Types des Lots</h1>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      + Ajouter un Type de Lot
+    </button>
+  </div>
+
+  <!-- Success/Error Messages -->
+  @if (successMessage) {
+  <div class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  } @if (errorMessage && !showModal) {
+  <div class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+  }
+
+  <!-- Search Filters -->
+  <div class="filters-container">
+    <div class="filters">
+      <div class="filter-group">
+        <label>Rechercher par le type de lot:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchType"
+          (ngModelChange)="filterBatchTypes()"
+          placeholder="Entrer le type de lot"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  @if (loading && !showModal) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+  }
+
+  <!-- Engineers Table -->
+  @if (!loading) {
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type de lot</th>
+          <th>Tranche</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let type of filteredTypes">
+          <td>{{ type.batchTypeId }}</td>
+          <td>{{ type.type }}</td>
+          <td>{{ type.section }}</td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="openEditModal(type)">
+              Modifier
+            </button>
+            <button
+              class="btn btn-delete"
+              (click)="deleteBatchType(type.batchTypeId!)"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+
+        @if (filteredTypes.length === 0) {
+        <tr>
+          <td colspan="9" class="no-data">Aucun type de lot trouvé</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+  <!-- Modal Popup -->
+  @if (showModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? "Modifier le type de lot" : "Créer un type de lot" }}</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+      } @if (successMessage) {
+      <div class="alert alert-success">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form class="engineer-form" (ngSubmit)="submitForm()">
+        <div class="form-group">
+          <label>Type de Lot *</label>
+          <input
+            type="text"
+            [(ngModel)]="batchTypeForm.type"
+            name="batchType"
+            required
+          />
+
+          <label>Tranche</label>
+          <input
+            type="number"
+            [(ngModel)]="batchTypeForm.section"
+            name="section"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="closeModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{ loading ? "Sauvegarde..." : isEditMode ? "Modifier" : "Créer" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>

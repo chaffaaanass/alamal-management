@@ -1,0 +1,456 @@
+<div class="engineer-container">
+  <div class="header">
+    <h1>Gestion des Sociétés</h1>
+    <button class="btn btn-primary" (click)="openSummaryModal()">
+      Afficher le Résumé des Sociétés
+    </button>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      + Ajouter une Société
+    </button>
+  </div>
+
+  <!-- Success/Error Messages -->
+  @if (successMessage) {
+  <div class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  } @if (errorMessage && !showModal) {
+  <div class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+  }
+
+  <!-- Search Filters -->
+  <div class="filters-container">
+    <div class="filters">
+      <div class="filter-group">
+        <label>Rechercher par le nom de société:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchName"
+          (ngModelChange)="filterSocieties()"
+          placeholder="Entrer le nom de société"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Rechercher par le type de lot:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchType"
+          (ngModelChange)="filterSocieties()"
+          placeholder="Entrer le type de lot"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Rechercher par la date:</label>
+        <input
+          type="date"
+          [(ngModel)]="searchDate"
+          (ngModelChange)="filterSocieties()"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Rechercher par la numéro de chèque:</label>
+        <input
+          type="number"
+          [(ngModel)]="searchChequeNumber"
+          (ngModelChange)="filterSocieties()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  @if (loading && !showModal) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+  } @if (filteredSocieties.length > 0 && objectKeys(groupedSocieties).length >
+  0) {
+  <button class="btn btn-primary" (click)="toggleSort()">
+    {{
+      sortDescending ? "Plus récent → Plus ancien" : "Plus ancien → Plus récent"
+    }}
+  </button>
+  <!-- Societies Table -->
+  @if (!(searchName || searchType || searchDate || searchChequeNumber)) { @if
+  (!loading) { @for (societyName of objectKeys(groupedSocieties); track
+  societyName) {
+  <div class="acts-display-section">
+    <h3>Liste des Lots ({{ societyName }})</h3>
+
+    <div class="acts-content">
+      @if (getBatchesBySociety(societyName).length > 0) {
+      <div class="acts-list-display">
+        @for ( act of getBatchesBySociety(societyName); let i = $index; track i
+        ) {
+        <div class="act-item-display">
+          <span class="act-label">Lot {{ i + 1 }}:</span>
+          <span class="act-value">
+            {{ act | number : "1.2-2" }}
+          </span>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="no-acts-message">Non Lots</div>
+      }
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>Numéro d'attachment</th>
+          <th>Numéro de cheque</th>
+          <th>Nom de la société</th>
+          <th>Montant</th>
+          <th>Date du chèque</th>
+          <th>Type de lot</th>
+          <th>Tranche</th>
+          <th>Créer par</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (society of groupedSocieties[societyName].rows; track
+        society.attachmentNumber) {
+        <tr>
+          <td>{{ society.attachmentNumber }}</td>
+          <td>{{ society.chequeNumber }}</td>
+          <td>{{ society.societyName }}</td>
+          <td>{{ society.sum | number : "1.2-2" }}</td>
+          <td>{{ society.date }}</td>
+          <td>{{ society.batchType }}</td>
+          @if (society.section > 0) {
+          <td>{{ society.section }}</td>
+          } @else {
+          <td></td>
+          }
+          <td>{{ society.createdBy }}</td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="openEditModal(society)">
+              Modifier
+            </button>
+            <button
+              class="btn btn-delete"
+              (click)="deleteSociety(society.attachmentNumber)"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        } @if (groupedSocieties[societyName].rows.length === 0) {
+        <tr>
+          <td colspan="9" class="no-data">Aucune société trouvée</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } } }
+
+  <!-- Filtered Society Table -->
+  @if (filteredSocieties.length > 0 && (searchName || searchType || searchDate
+  || searchChequeNumber)){
+  <div class="acts-display-section">
+    <h3>Liste des Acts ({{ searchName }})</h3>
+
+    <div class="acts-content">
+      @if (getBatchesBySociety(searchName).length > 0) {
+      <div class="acts-list-display">
+        @for ( act of getBatchesBySociety(searchName); let i = $index; track i )
+        {
+        <div class="act-item-display">
+          <span class="act-label">Act {{ i + 1 }}:</span>
+          <span class="act-value">
+            {{ act | number : "1.2-2" }}
+          </span>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="no-acts-message">Pas de lots</div>
+      }
+    </div>
+  </div>
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>Numéro d'attachment</th>
+          <th>Numéro de cheque</th>
+          <th>Nom de la société</th>
+          <th>Montant</th>
+          <th>Date du chèque</th>
+          <th>Type de lot</th>
+          <th>Tranche</th>
+          <th>Créer par</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filteredSocieties.length > 0) {
+        <tr *ngFor="let society of filteredSocieties">
+          <td>{{ society.attachmentNumber }}</td>
+          <td>{{ society.chequeNumber }}</td>
+          <td>{{ society.societyName }}</td>
+          <td>{{ society.sum | number : "1.2-2" }}</td>
+          <td>{{ society.date }}</td>
+          <td>{{ society.batchType }}</td>
+          @if (society.section > 0) {
+          <td>{{ society.section }}</td>
+          } @else {
+          <td></td>
+          }
+          <td>{{ society.createdBy }}</td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="openEditModal(society)">
+              Modifier
+            </button>
+            <button
+              class="btn btn-delete"
+              (click)="deleteSociety(society.attachmentNumber)"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        } @else {
+        <tr>
+          <td colspan="8" class="no-data">Aucune société trouvée</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } } @else {
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>Numéro d'attachment</th>
+          <th>Numéro de cheque</th>
+          <th>Nom de la société</th>
+          <th>Montant</th>
+          <th>Date du chèque</th>
+          <th>Type de lot</th>
+          <th>Tranche</th>
+          <th>Créer par</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="9" class="no-data">Aucune société trouvée</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  }
+
+  <!-- Modal Popup -->
+  @if (showModal ) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          {{ isEditMode ? "Editer Ingénieur" : "Créer un nouvel ingénieur" }}
+        </h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+      } @if (successMessage) {
+      <div class="alert alert-success">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form class="engineer-form" (ngSubmit)="submitForm()">
+        <div class="form-group">
+          <label>Numéro de cheque *</label>
+          <input
+            type="number"
+            [(ngModel)]="societyForm.chequeNumber"
+            name="chequeNumber"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Nom de la société *</label>
+          <input
+            type="text"
+            [(ngModel)]="societyForm.societyName"
+            name="societyName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Somme *</label>
+          <input
+            type="number"
+            step="0.01"
+            [(ngModel)]="societyForm.sum"
+            name="sum"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Cheque Date *</label>
+          <input
+            type="date"
+            [(ngModel)]="societyForm.date"
+            name="chequeDate"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Type de lot*</label>
+          <select
+            [(ngModel)]="societyForm.batchType"
+            (change)="onBatchTypeChange()"
+            name="batchType"
+            required
+          >
+            <option value="">Sélectionner le type de lot</option>
+            <option *ngFor="let type of batchTypeValues" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tranche *</label>
+          <input
+            type="number"
+            [(ngModel)]="societyForm.section"
+            name="section"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Lots (Nombres)</label>
+          <div class="acts-input">
+            <input
+              type="number"
+              [(ngModel)]="newBatch"
+              name="newBatch"
+              placeholder="Ajouter un numéro de lot"
+              (keyup.enter)="addBatch()"
+            />
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="addBatch()"
+            >
+              Ajouter
+            </button>
+          </div>
+          <div class="acts-list">
+            <span
+              class="act-item"
+              *ngFor="let batch of societyForm.batches; let i = index"
+            >
+              {{ batch }}
+              <button type="button" class="remove-act" (click)="removeBatch(i)">
+                &times;
+              </button>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="closeModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{
+              loading ? "Sauvegarde..." : isEditMode ? "Mettre à jour" : "Créer"
+            }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  } @if (showSummaryModal) {
+  <div class="modal-overlay" (click)="closeSummaryModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Résumé de la société</h2>
+        <button class="close-btn" (click)="closeSummaryModal()">&times;</button>
+      </div>
+
+      @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+      } @if (successMessage) {
+      <div class="alert alert-success">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form class="engineer-form">
+        <div class="form-group">
+          <label>Chercher par le nom de la société</label>
+          <input
+            type="text"
+            [(ngModel)]="societyForm.societyName"
+            (ngModelChange)="societySummary(societyForm.societyName)"
+            name="societyName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Les lots *</label>
+          <div
+            *ngFor="let batch of societySummaryData?.batches; let i = index"
+            class="act-item"
+          >
+            Lot {{ i + 1 }}: {{ batch | number : "1.2-2" }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Lots Totale*</label>
+          <div class="act-item">
+            {{ societySummaryData?.totalBatches | number : "1.2-2" }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Somme Totale*</label>
+          <div class="act-item">
+            {{ societySummaryData?.totalSum | number : "1.2-2" }}
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-cancel"
+            (click)="closeSummaryModal()"
+          >
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>

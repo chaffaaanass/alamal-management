@@ -1,0 +1,428 @@
+<div class="engineer-container">
+  <div class="header">
+    <h1>Gestion des Ingénieurs</h1>
+    <button class="btn btn-primary" (click)="openSummaryModal()">
+      Afficher le Résumé des Ingénieurs
+    </button>
+    <button class="btn btn-primary" (click)="openCreateModal()">
+      + Ajouter un Ingénieur
+    </button>
+  </div>
+
+  <!-- Success/Error Messages -->
+  @if (successMessage) {
+  <div class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  } @if (errorMessage && !showModal) {
+  <div class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+  }
+
+  <!-- Search Filters -->
+  <div class="filters-container">
+    <div class="filters">
+      <div class="filter-group">
+        <label>Rechercher par le nom d'ingénieur:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchName"
+          (ngModelChange)="filterEngineers()"
+          placeholder="Entrer le nom d'ingénieur"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Rechercher par le type d'ingénieur:</label>
+        <input
+          type="text"
+          [(ngModel)]="searchType"
+          (ngModelChange)="filterEngineers()"
+          placeholder="Entrer le type d'ingénieur"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Rechercher par la date:</label>
+        <input
+          type="date"
+          [(ngModel)]="searchDate"
+          (ngModelChange)="filterEngineers()"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label>Rechercher par la numéro de chèque:</label>
+        <input
+          type="number"
+          [(ngModel)]="searchChequeNumber"
+          (ngModelChange)="filterEngineers()"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  @if (loading && !showModal) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+  } @if (filteredEngineers.length > 0 && objectKeys(groupedEngineers).length >
+  0) {
+  <button class="btn btn-primary" (click)="toggleSort()">
+    {{
+      sortDescending ? "Plus récent → Plus ancien" : "Plus ancien → Plus récent"
+    }}
+  </button>
+  <!-- Engineers Table -->
+  @if (!(searchName || searchType || searchDate || searchChequeNumber)) { @if
+  (!loading) { @for (engineerName of objectKeys(groupedEngineers); track
+  engineerName) {
+  <div class="acts-display-section">
+    <h3>Liste des Acts ({{ engineerName }})</h3>
+
+    <div class="acts-content">
+      @if (getActsByEngineer(engineerName).length > 0) {
+      <div class="acts-list-display">
+        @for ( act of getActsByEngineer(engineerName); let i = $index; track i )
+        {
+        <div class="act-item-display">
+          <span class="act-label">Act {{ i + 1 }}:</span>
+          <span class="act-value">
+            {{ act | number : "1.2-2" }}
+          </span>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="no-acts-message">Aucun acte</div>
+      }
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Numéro de cheque</th>
+          <th>Nom de l'ingénieur</th>
+          <th>Montant</th>
+          <th>Date du chèque</th>
+          <th>Type</th>
+          <th>Créer par</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (engineer of groupedEngineers[engineerName].rows; track
+        engineer.engineerId) {
+        <tr>
+          <td>{{ engineer.engineerId }}</td>
+          <td>{{ engineer.chequeNumber }}</td>
+          <td>{{ engineer.engineerName }}</td>
+          <td>{{ engineer.amount | number : "1.2-2" }}</td>
+          <td>{{ engineer.chequeDate }}</td>
+          <td>{{ engineer.engineerType }}</td>
+          <td>{{ engineer.createdBy }}</td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="openEditModal(engineer)">
+              Modifier
+            </button>
+            <button
+              class="btn btn-delete"
+              (click)="deleteEngineer(engineer.engineerId)"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        } @if (groupedEngineers[engineerName].rows.length === 0) {
+        <tr>
+          <td colspan="9" class="no-data">Aucun ingénieur trouvé</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } } }
+
+  <!-- Filtered Engineers Table -->
+  @if (filteredEngineers.length > 0 && (searchName || searchType || searchDate
+  || searchChequeNumber)){
+  <div class="acts-display-section">
+    <h3>Liste des Acts ({{ searchName }})</h3>
+
+    <div class="acts-content">
+      @if (getActsByEngineer(searchName).length > 0) {
+      <div class="acts-list-display">
+        @for ( act of getActsByEngineer(searchName); let i = $index; track i ) {
+        <div class="act-item-display">
+          <span class="act-label">Act {{ i + 1 }}:</span>
+          <span class="act-value">
+            {{ act | number : "1.2-2" }}
+          </span>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="no-acts-message">Aucun acte</div>
+      }
+    </div>
+  </div>
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Numéro de chèque</th>
+          <th>Nom de l'ingénieur</th>
+          <th>Montant</th>
+          <th>Date du chèque</th>
+          <th>Type</th>
+          <th>Créé par</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filteredEngineers.length > 0) {
+        <tr *ngFor="let engineer of filteredEngineers">
+          <td>{{ engineer.engineerId }}</td>
+          <td>{{ engineer.chequeNumber }}</td>
+          <td>{{ engineer.engineerName }}</td>
+          <td>{{ engineer.amount | number : "1.2-2" }}</td>
+          <td>{{ engineer.chequeDate }}</td>
+          <td>{{ engineer.engineerType }}</td>
+          <td>{{ engineer.createdBy }}</td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="openEditModal(engineer)">
+              Modifier
+            </button>
+            <button
+              class="btn btn-delete"
+              (click)="deleteEngineer(engineer.engineerId)"
+            >
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        } @else {
+        <tr>
+          <td colspan="8" class="no-data">Aucun ingénieur trouvé</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  } } @else {
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Numéro de cheque</th>
+          <th>Nom de l'ingénieur</th>
+          <th>Montant</th>
+          <th>Date du chèque</th>
+          <th>Type</th>
+          <th>Créer par</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="9" class="no-data">Aucun ingénieur trouvé</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  }
+
+  <!-- Modal Popup -->
+  @if (showModal ) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          {{ isEditMode ? "Editer Ingénieur" : "Créer un nouvel ingénieur" }}
+        </h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+      } @if (successMessage) {
+      <div class="alert alert-success">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form class="engineer-form" (ngSubmit)="submitForm()">
+        <div class="form-group">
+          <label>Numéro de chèque *</label>
+          <input
+            type="number"
+            [(ngModel)]="engineerForm.chequeNumber"
+            name="chequeNumber"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Nom de l'ingénieur *</label>
+          <input
+            type="text"
+            [(ngModel)]="engineerForm.engineerName"
+            name="engineerName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Montant *</label>
+          <input
+            type="number"
+            step="0.01"
+            [(ngModel)]="engineerForm.amount"
+            name="amount"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Date du chèque *</label>
+          <input
+            type="date"
+            [(ngModel)]="engineerForm.chequeDate"
+            name="chequeDate"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Type d'ingénieur *</label>
+          <select
+            [(ngModel)]="engineerForm.engineerType"
+            (change)="onEngineerTypeChange()"
+            name="engineerType"
+            required
+          >
+            <option value="">Sélectionnez le type d'ingénieur</option>
+            <option *ngFor="let type of engineerTypeValues" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Acts (Numbers)</label>
+          <div class="acts-input">
+            <input
+              type="number"
+              [(ngModel)]="newAct"
+              name="newAct"
+              placeholder="Ajouter un numéro d'acte"
+              (keyup.enter)="addAct()"
+            />
+            <button type="button" class="btn btn-secondary" (click)="addAct()">
+              Ajouter
+            </button>
+          </div>
+          <div class="acts-list">
+            <span
+              class="act-item"
+              *ngFor="let act of engineerForm.acts; let i = index"
+            >
+              {{ act }}
+              <button type="button" class="remove-act" (click)="removeAct(i)">
+                &times;
+              </button>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="closeModal()">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{
+              loading ? "Sauvegarde..." : isEditMode ? "Mettre à jour" : "Créer"
+            }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  } @if (showSummaryModal) {
+  <div class="modal-overlay" (click)="closeSummaryModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Résumé de l'ingénieur</h2>
+        <button class="close-btn" (click)="closeSummaryModal()">&times;</button>
+      </div>
+
+      @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+      } @if (successMessage) {
+      <div class="alert alert-success">
+        {{ successMessage }}
+      </div>
+      }
+
+      <form class="engineer-form">
+        <div class="form-group">
+          <label>Chercher par le nom d'ingénieur</label>
+          <input
+            type="text"
+            [(ngModel)]="engineerForm.engineerName"
+            (ngModelChange)="engineerSummary(engineerForm.engineerName)"
+            name="engineerName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Actes *</label>
+          <div
+            *ngFor="let act of engineerSummaryData?.acts; let i = index"
+            class="act-item"
+          >
+            Acte {{ i + 1 }}: {{ act | number : "1.2-2" }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Actes Totale*</label>
+          <div class="act-item">
+            {{ engineerSummaryData?.totalActs | number : "1.2-2" }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Montant Totale*</label>
+          <div class="act-item">
+            {{ engineerSummaryData?.totalAmount | number : "1.2-2" }}
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-cancel"
+            (click)="closeSummaryModal()"
+          >
+            Annuler
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>
