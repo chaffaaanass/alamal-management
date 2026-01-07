@@ -1,0 +1,57 @@
+<div class="engineer-container">
+  <div class="header">
+    <h1>Gestion des Base de Données</h1>
+  </div>
+
+  @if (errorMessage) {
+  <div class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+  } @if (successMessage) {
+  <div class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  }
+
+  <!-- Loading Spinner -->
+  @if (loading) {
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+  }
+
+  <!-- Engineers Table -->
+  @if (!loading) {
+  <div class="table-container">
+    <table class="engineers-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Taille</th>
+          <th>Modifié</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let backup of backups; let i = index">
+          <td>{{ backup }}</td>
+          <td>{{ formatFileSize(backup.length) }}</td>
+          <td>{{ formatBackupDate(backup) }}</td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="restoreFromBackup(backup)">
+              Restaurer
+            </button>
+          </td>
+        </tr>
+
+        @if (backups.length === 0) {
+        <tr>
+          <td colspan="9" class="no-data">Aucun sauvegarde trouvé</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+</div>

@@ -7,4 +7,5 @@ export const routes: Routes = [
     {path: 'batch-types', loadComponent: () => import('./components/batch-type/batch-type.component').then(m => m.BatchTypeComponent)},
     {path: 'societies', loadComponent: () => import('./components/society/society.component').then(m => m.SocietyComponent)},
     {path: 'users', loadComponent: () => import('./components/user/user.component').then(m => m.UserComponent)},
+    {path: 'database-backups', loadComponent: () => import('./components/database-backup/database-backup.component').then(m => m.DatabaseBackupComponent)},
 ];

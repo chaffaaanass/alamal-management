@@ -120,7 +120,6 @@ export class EngineerTypeComponent implements OnInit {
           error: (error) => {
             this.errorMessage =
               error.error?.message || 'Failed to update engineer type';
-            console.error(error);
             this.loading = false;
           },
         });
