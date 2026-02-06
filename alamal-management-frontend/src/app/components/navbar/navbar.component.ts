@@ -9,16 +9,21 @@ import { Router } from '@angular/router';
 })
 export class NavbarComponent {
   isLoggedIn: boolean = false;
-  
-  constructor(public authService: AuthService, private router: Router) {
-  }
+  menuState: 'opened' | 'closed' = 'closed';
+
+  constructor(public authService: AuthService, private router: Router) {}
 
   isAuthenticated(): boolean {
     return this.authService.isLoggedIn();
   }
+
+  toggleMenu() {
+    this.menuState = this.menuState === 'closed' ? 'opened' : 'closed';
+    console.log('Menu state:', this.menuState);
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigate(['']);
   }
-} 
-
+}

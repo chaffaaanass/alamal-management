@@ -1,11 +1,19 @@
-<nav isloggedIn="true">
-    <ul>
-        <li><a href="/engineers">Ingénieurs</a></li>
-        <li><a href="/societies">Sociétés</a></li>
-        <li><a href="/engineers/types">Types d'ingénieur</a></li>
-        <li><a href="/batch-types">Types de lot</a></li>
-        <li><a href="/users">Utilisateurs</a></li>
-        <li><a href="/database-backups">Sauvegardes de la base de données</a></li>
-        <li><a (click)="logout()">Déconnexion</a></li>
-    </ul>
+<button class="menu-toggle" (click)="toggleMenu()">
+    @if (menuState === 'closed') {
+    <i class="bi bi-list"></i>
+    } @else {
+    <i class="bi bi-x-lg"></i>
+    }
+</button>
+
+<nav [class]="menuState" isloggedIn="true">
+  <ul>
+    <li><a href="/engineers">Ingénieurs</a></li>
+    <li><a href="/societies">Sociétés</a></li>
+    <li><a href="/engineers/types">Types d'ingénieur</a></li>
+    <li><a href="/batch-types">Types de lot</a></li>
+    <li><a href="/users">Utilisateurs</a></li>
+    <li><a href="/database-backups">Sauvegardes de la base de données</a></li>
+    <li><a (click)="logout()">Déconnexion</a></li>
+  </ul>
 </nav>
