@@ -9,7 +9,7 @@ import { EngineerTypeRequest } from '../../models/engineer/engineer-type-request
   providedIn: 'root'
 })
 export class EngineerTypeService {
-private apiUrl: string = 'http://localhost:8080/api/engineer-types';
+private apiUrl: string = 'http://105.157.46.152:8080/api/engineer-types';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

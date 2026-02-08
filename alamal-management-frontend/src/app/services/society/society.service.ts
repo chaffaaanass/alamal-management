@@ -10,7 +10,7 @@ import { SocietySummary } from '../../models/society/society-summary';
   providedIn: 'root',
 })
 export class SocietyService {
-  private apiUrl: string = 'http://localhost:8080/api/societies';
+  private apiUrl: string = 'http://105.157.46.152:8080/api/societies';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

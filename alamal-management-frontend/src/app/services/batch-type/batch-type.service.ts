@@ -9,7 +9,7 @@ import { BatchTypeRequest } from '../../models/society/batch-type-request';
   providedIn: 'root'
 })
 export class BatchTypeService {
-private apiUrl: string = 'http://localhost:8080/api/batch-types';
+private apiUrl: string = 'http://105.157.46.152:8080/api/batch-types';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

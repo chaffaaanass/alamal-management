@@ -7,7 +7,7 @@ import { AuthService } from '../auth/auth.service';
   providedIn: 'root',
 })
 export class DatabaseBackupService {
-  private apiUrl: string = 'http://localhost:8080/api/database';
+  private apiUrl: string = 'http://105.157.46.152:8080/api/database';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
