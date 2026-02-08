@@ -26,7 +26,7 @@ import java.util.zip.ZipOutputStream;
 public class DatabaseBackup {
     @Value("${spring.datasource.url}")
     private String databaseUrl;
-    private static final String BACKUP_DIR = "../backups/";
+    private static final String BACKUP_DIR = "backups/";
     private static final int MAX_BACKUPS = 8;
     @Autowired
     private DataSource dataSource;
