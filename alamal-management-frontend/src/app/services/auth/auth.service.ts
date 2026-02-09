@@ -9,7 +9,7 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl: string = 'http://105.157.46.152:8080/api/auth';
+  private apiUrl: string = 'http://alamal-management.duckdns.org/api/auth';
 
   constructor(private http: HttpClient) {
   }

@@ -10,7 +10,7 @@ import { EngineerSummary } from '../../models/engineer/engineer-summary';
   providedIn: 'root',
 })
 export class EngineerService {
-  private apiUrl: string = 'http://105.157.46.152:8080/api/engineers';
+  private apiUrl: string = 'http://alamal-management.duckdns.org/api/engineers';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

@@ -7,7 +7,7 @@ import { AuthService } from '../auth/auth.service';
   providedIn: 'root',
 })
 export class DatabaseBackupService {
-  private apiUrl: string = 'http://105.157.46.152:8080/api/database';
+  private apiUrl: string = 'http://alamal-management.duckdns.org/api/database';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

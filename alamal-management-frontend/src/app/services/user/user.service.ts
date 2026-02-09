@@ -8,7 +8,7 @@ import { AuthService } from '../auth/auth.service';
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl: string = 'http://105.157.46.152:8080/api/users';
+  private apiUrl: string = 'http://alamal-management.duckdns.org/api/users';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
